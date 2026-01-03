@@ -11,6 +11,7 @@ export interface Restaurant {
   longitude: number;
   phone: string;
   description: string;
+  hoursFormat?: 'simple' | 'complex'; // Optional - auto-detected if not set
 }
 
 export interface SearchParams {

@@ -20,6 +20,7 @@ npm run start        # Start production server
 npm test             # Run all tests once
 npm run test:watch   # Run tests in watch mode
 npm run test:coverage # Run tests with coverage report
+npm test -- __tests__/utils/distance.test.ts  # Run single test file
 ```
 
 ### Code Quality
@@ -56,14 +57,19 @@ npm run format:check # Check formatting without modifying
 
 Uses Jest + React Testing Library with Next.js integration. Tests located in `__tests__/` directory mirroring source structure. Path alias `@/` configured in both `tsconfig.json` and `jest.config.js`.
 
-Run single test file:
-```bash
-npm test -- __tests__/utils/distance.test.ts
-```
-
 ## Known Dead Code (Intentional)
 
-There's some dead code **intentionally left as workshop exercises**:
+The following code is **intentionally left as workshop exercises**:
+
+### Completely Unused Files (Workshop Exercise 2)
+- `components/RestaurantMap.tsx` - Legacy map component, never used
+- `app/api/restaurants/favorites/route.ts` - Favorites endpoint, never implemented in UI
+- Most of `utils/helpers.ts` - Only `formatRating()` is actually used; rest are unused helpers
+
+### Unused Features
+- Opening hours stored in data but not displayed in UI (Workshop Exercise 1)
+- POST `/api/restaurants` filtering by cuisine/rating/price (implemented but no UI)
+- Console.log statements throughout codebase (debugging leftovers)
 
 ## Environment Variables
 

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import restaurantData from '@/data/restaurants.json';
 import { calculateDistance, mockGeocode, DEFAULT_COORDINATES } from '@/utils/distance';
 import { Restaurant } from '@/types/restaurant';
+import { parseCSV } from '@/utils/csvParser';
+import { readFileSync } from 'fs';
+import path from 'path';
 
 // Number of restaurants to return
 const RESULTS_LIMIT = 5;
@@ -12,8 +15,17 @@ export async function GET(request: NextRequest) {
     const address = searchParams.get('address');
     const lat = searchParams.get('lat');
     const lng = searchParams.get('lng');
+    const dataSource = searchParams.get('dataSource') || 'json';
 
-    console.log('API called with params:', { address, lat, lng }); // Dead code - should be removed
+    // Load appropriate dataset
+    let restaurants: Restaurant[];
+    if (dataSource === 'csv') {
+      const csvPath = path.join(process.cwd(), 'data', 'restaurants.csv');
+      const csvContent = readFileSync(csvPath, 'utf-8');
+      restaurants = parseCSV(csvContent);
+    } else {
+      restaurants = restaurantData.restaurants;
+    }
 
     let userLat: number;
     let userLng: number;
@@ -36,7 +48,6 @@ export async function GET(request: NextRequest) {
       if (coords) {
         userLat = coords.latitude;
         userLng = coords.longitude;
-        console.log('Geocoded address to:', coords); // Dead code - should be removed
       } else {
         // Fall back to default coordinates
         userLat = DEFAULT_COORDINATES.latitude;
@@ -49,7 +60,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Calculate distance for each restaurant and sort by distance
-    const restaurantsWithDistance = restaurantData.restaurants.map((restaurant: Restaurant) => ({
+    const restaurantsWithDistance = restaurants.map((restaurant: Restaurant) => ({
       ...restaurant,
       distance: calculateDistance(
         userLat,
@@ -64,8 +75,6 @@ export async function GET(request: NextRequest) {
       .sort((a, b) => a.distance - b.distance)
       .slice(0, RESULTS_LIMIT);
 
-    console.log('Returning', sortedRestaurants.length, 'restaurants'); // Dead code - should be removed
-
     return NextResponse.json({
       restaurants: sortedRestaurants,
       searchLocation: {
@@ -75,6 +84,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error in restaurants API:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -89,8 +99,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { latitude, longitude, filters } = body;
-
-    console.log('POST request received:', body); // Dead code - should be removed
 
     if (!latitude || !longitude) {
       return NextResponse.json(
@@ -135,6 +143,7 @@ export async function POST(request: NextRequest) {
       restaurants: sortedRestaurants,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error in POST /api/restaurants:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

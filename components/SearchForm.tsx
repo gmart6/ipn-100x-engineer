@@ -3,17 +3,18 @@
 import { useState, FormEvent } from 'react';
 
 interface SearchFormProps {
+  // eslint-disable-next-line no-unused-vars
   onSearch: (location: string) => void;
   isLoading: boolean;
 }
 
 export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
-  const [location, setLocation] = useState('');
+  const [searchInput, setSearchInput] = useState('');
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (location.trim()) {
-      onSearch(location.trim());
+    if (searchInput.trim()) {
+      onSearch(searchInput.trim());
     }
   };
 
@@ -30,8 +31,8 @@ export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
           <input
             type="text"
             id="location"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Enter address, city, or zip code..."
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all"
             disabled={isLoading}
@@ -40,7 +41,7 @@ export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
         <div className="flex items-end">
           <button
             type="submit"
-            disabled={isLoading || !location.trim()}
+            disabled={isLoading || !searchInput.trim()}
             className="w-full sm:w-auto px-6 py-3 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             {isLoading ? 'Searching...' : 'Find Restaurants'}
@@ -48,7 +49,7 @@ export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
         </div>
       </div>
       <p className="mt-3 text-sm text-gray-500">
-        💡 Tip: Try searching for "San Francisco", "Downtown", or a zip code like "94102"
+        💡 Tip: Try searching for &quot;San Francisco&quot;, &quot;Downtown&quot;, or a zip code like &quot;94102&quot;
       </p>
     </form>
   );

@@ -13,18 +13,17 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
-
-  // console.log('Home component rendered'); // Dead code - should be removed
+  const [dataSource, setDataSource] = useState<'json' | 'csv'>('json');
 
   const handleSearch = async (location: string) => {
     setLoading(true);
     setError(null);
     setHasSearched(true);
 
-    console.log('Searching for restaurants near:', location); // Dead code - should be removed
-
     try {
-      const response = await fetch(`/api/restaurants?address=${encodeURIComponent(location)}`);
+      const response = await fetch(
+        `/api/restaurants?address=${encodeURIComponent(location)}&dataSource=${dataSource}`
+      );
       const data = await response.json();
 
       if (!response.ok) {
@@ -32,7 +31,6 @@ export default function Home() {
       }
 
       setRestaurants(data.restaurants);
-      console.log('Found restaurants:', data.restaurants.length); // Dead code - should be removed
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
       setRestaurants([]);
@@ -58,6 +56,31 @@ export default function Home() {
         {/* Search Section */}
         <section className="mb-8">
           <SearchForm onSearch={handleSearch} isLoading={loading} />
+
+          {/* Dataset Toggle */}
+          <div className="mt-4 flex items-center gap-3">
+            <label className="text-sm font-medium text-gray-700">Dataset:</label>
+            <button
+              onClick={() => setDataSource('json')}
+              className={`px-4 py-2 text-sm rounded-lg transition-colors ${
+                dataSource === 'json'
+                  ? 'bg-red-500 text-white shadow-md'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              San Francisco (25)
+            </button>
+            <button
+              onClick={() => setDataSource('csv')}
+              className={`px-4 py-2 text-sm rounded-lg transition-colors ${
+                dataSource === 'csv'
+                  ? 'bg-red-500 text-white shadow-md'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              Houston (20)
+            </button>
+          </div>
         </section>
 
         {/* Results Section */}
@@ -103,7 +126,9 @@ export default function Home() {
                 Enter your location to find nearby restaurants
               </p>
               <p className="text-gray-400 text-sm mt-2">
-                Try searching for "San Francisco" or "94102"
+                {dataSource === 'json'
+                  ? 'Try searching for "San Francisco" or "94102"'
+                  : 'Try searching for "Houston" or "Hillcroft"'}
               </p>
             </div>
           )}

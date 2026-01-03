@@ -1,4 +1,9 @@
 import { Restaurant } from '@/types/restaurant';
+import {
+  getRestaurantStatus,
+  formatHoursDisplay,
+  detectHoursFormat,
+} from '@/utils/hours';
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
@@ -64,10 +69,10 @@ export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
           📍 {restaurant.address}
         </p>
 
-        {/* TODO: Workshop Exercise 1 - Add opening hours display */}
-        {/* The data includes openingHours and closingHours fields */}
-        {/* Display them here with appropriate formatting */}
-        {/* Consider showing "Open Now" or "Closed" status */}
+        {/* Operating Hours Display */}
+        <div className="mb-2">
+          <OperatingHours restaurant={restaurant} />
+        </div>
 
         <p className="text-sm text-gray-500 line-clamp-2">{restaurant.description}</p>
 
@@ -79,6 +84,63 @@ export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
             📞
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Operating Hours Component
+function OperatingHours({ restaurant }: { restaurant: Restaurant }) {
+  const format = detectHoursFormat(
+    restaurant.openingHours,
+    restaurant.closingHours
+  );
+  const status = getRestaurantStatus(
+    restaurant.openingHours,
+    restaurant.closingHours
+  );
+  const displayHours = formatHoursDisplay(
+    restaurant.openingHours,
+    restaurant.closingHours,
+    format
+  );
+
+  return (
+    <div className="space-y-1">
+      {/* Status Badge */}
+      <div className="flex items-center gap-2">
+        <span
+          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+            status.isOpen
+              ? 'bg-green-100 text-green-800'
+              : 'bg-red-100 text-red-800'
+          }`}
+        >
+          {status.isOpen ? '● Open Now' : '● Closed'}
+        </span>
+        {status.nextChange && (
+          <span className="text-xs text-gray-500">{status.nextChange}</span>
+        )}
+      </div>
+
+      {/* Hours Display */}
+      <div className="text-sm text-gray-600">
+        {format === 'simple' ? (
+          <div className="flex items-center">
+            <span className="mr-1">🕒</span>
+            <span>{displayHours}</span>
+          </div>
+        ) : (
+          <details className="cursor-pointer">
+            <summary className="flex items-center hover:text-gray-900">
+              <span className="mr-1">🕒</span>
+              <span className="truncate">Hours (click to expand)</span>
+            </summary>
+            <div className="mt-1 pl-5 text-xs whitespace-pre-wrap">
+              {displayHours}
+            </div>
+          </details>
+        )}
       </div>
     </div>
   );
@@ -105,6 +167,19 @@ function getCuisineEmoji(cuisine: string): string {
     Brazilian: '🥩',
     Peruvian: '🐟',
     Spanish: '🥘',
+    // Regional Indian cuisines
+    'Andhra/Telugu': '🍛',
+    'Tamil/South Indian': '🍛',
+    'Modern South Indian': '🍛',
+    'Pakistani/South Indian': '🍛',
+    'Pakistani/Punjabi': '🍛',
+    'Karnataka/Udupi': '🍛',
+    'Indo-Pakistani': '🍛',
+    'South Indian': '🍛',
+    'Gujarati/South Indian': '🍛',
+    'North/South Indian': '🍛',
+    'Gujarati/Rajasthani': '🍛',
+    'Pakistani/Indian': '🍛',
   };
 
   return cuisineEmojis[cuisine] || '🍽️';
